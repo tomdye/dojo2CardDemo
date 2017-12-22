@@ -1,0 +1,16 @@
+.root {
+	padding: 5px;
+}
+
+.grid {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
