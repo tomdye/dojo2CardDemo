@@ -75,7 +75,7 @@ export class Card extends WidgetBase {
 				classes: [ css.card, shadowCss.depth2, this._animate ? css.expanded : null ]
 			}, [
 				v('div', { classes: css.title }, [
-					v('h2', { classes: css.titleText }, [ 'TITLE' ])
+					v('h2', { classes: css.titleText }, [ 'CLICK ME' ])
 				]),
 				v('div', { classes: [ css.content, css.paddedContent ] }, this.children)
 			])
