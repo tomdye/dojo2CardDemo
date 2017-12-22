@@ -2,7 +2,6 @@ import { v } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import Dimensions from '@dojo/widget-core/meta/Dimensions'
 import WebAnimation from '@dojo/widget-core/meta/WebAnimation';
-import { assign } from '@dojo/core/lang';
 
 import * as css from './styles/card.m.css';
 import * as shadowCss from './styles/shadow.m.css';
@@ -57,9 +56,10 @@ export class Card extends WidgetBase {
 				id: 'contractAnimation',
 				effects,
 				controls,
-				timing: assign({}, timing, {
+				timing: {
+					...timing,
 					direction: 'reverse'
-				})
+				}
 			};
 
 			this.meta(WebAnimation).animate('card', this._expanded ? expandAnimation as any : contractAnimation);
