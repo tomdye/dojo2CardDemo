@@ -1,8 +1,11 @@
 .root {
-	padding: 5px;
+
 }
 
 .grid {
+	/* padding: 5px; */
+	width: 800px;
+	margin: 32px auto;
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -13,4 +16,9 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
+}
+
+.title {
+	height: 128px;
+	background: red;
 }
