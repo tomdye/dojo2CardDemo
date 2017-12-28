@@ -1,7 +1,7 @@
 import { v } from '@dojo/widget-core/d';
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import Dimensions from '@dojo/widget-core/meta/Dimensions'
-import WebAnimation from '@dojo/widget-core/meta/WebAnimation';
+import WebAnimation, { AnimationProperties, AnimationTimingProperties } from '@dojo/widget-core/meta/WebAnimation';
 
 import * as css from './styles/card.m.css';
 import * as shadowCss from './styles/shadow.m.css';
@@ -24,55 +24,73 @@ export class Card extends WidgetBase {
 		this.invalidate();
 	}
 
-	protected render() {
-		const dimensions = this.meta(Dimensions);
-		const { position, size } = dimensions.get('root');
+	protected _getAnimation(first: any): AnimationProperties {
+		const last = this.meta(Dimensions).get('card');
 
-		if (this._animate) {
-			const effects = [
-				{ left: `${position.left}px`, top: `${position.top}px`, width: `${size.width}px`, height: `${size.height}px` },
-				{ left: '0px', top: '0px', width: '100%', height: '100%' }
-			];
-
-			const controls = {
-				play: this._play,
-				onFinish: this._onAnimationEnd,
-			};
-
-			const timing = {
-				duration: 200,
-				easing: 'cubic-bezier(0, 0, 0.3, 1)',
-				fill: 'forwards'
-			};
-
-			const expandAnimation = {
-				id: 'expandAnimation',
-				effects,
-				controls,
-				timing
-			};
-
-			const contractAnimation = {
-				id: 'contractAnimation',
-				effects,
-				controls,
-				timing: {
-					...timing,
-					direction: 'reverse'
-				}
-			};
-
-			this.meta(WebAnimation).animate('card', this._expanded ? expandAnimation as any : contractAnimation);
+		const invert = {
+			x: first.position.left - last.position.left,
+			y: first.position.top - last.position.top,
+			sx: first.size.width / last.size.width,
+			sy: first.size.height / last.size.height
 		}
 
+		const effects = [
+			{ transform: `translate(${invert.x}px, ${invert.y}px)
+						  scale(${invert.sx}, ${invert.sy})` },
+			{ transform: 'translate(0) scale(1)' }
+		];
+
+		const controls = {
+			play: this._play,
+			onFinish: this._onAnimationEnd,
+		};
+
+		const timing: AnimationTimingProperties = {
+			duration: 200,
+			easing: 'cubic-bezier(0, 0, 0.3, 1)',
+			fill: 'forwards'
+		};
+
+		const expandAnimation: AnimationProperties = {
+			id: 'expandAnimation',
+			effects,
+			controls,
+			timing
+		};
+
+		const contractAnimation: AnimationProperties = {
+			id: 'contractAnimation',
+			effects,
+			controls,
+			timing: {
+				...timing,
+				direction: 'reverse'
+			}
+		};
+
+		return this._expanded ? expandAnimation : contractAnimation;
+	}
+
+	protected render() {
 		return v('div', {
 			key: 'root',
 			classes: css.root
 		}, [
-			v('div', {
-				key: 'card',
-				onclick: this._onClick,
-				classes: [ css.card, shadowCss.depth2, this._animate ? css.expanded : null ]
+			v('div', (inserted, deferred) => {
+				const prepareAnimation = deferred && this._animate;
+				if (prepareAnimation) {
+					const first = this.meta(Dimensions).get('card');
+
+					this.meta(WebAnimation).animate('card', () => {
+						return this._getAnimation(first);
+					});
+				}
+
+				return {
+					key: 'card',
+					onclick: this._onClick,
+					classes: [ css.card, shadowCss.depth2, prepareAnimation ? css.expanded : null ]
+				};
 			}, [
 				v('div', { classes: css.title }, [
 					v('h2', { classes: css.titleText }, [ 'CLICK ME' ])
